@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:testCase id="0488fc10-91ed-4d81-9e36-6d09933a804c" discardOkResults="false" failOnError="true" failTestCaseOnErrors="true" keepSession="false" name="LOGIN_SCENARIO2" searchProperties="true" timeout="0" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="0488fc10-91ed-4d81-9e36-6d09933a804cfileName">LOGIN_SCENARIO2</con:setting></con:settings><con:savedRecentRuns>1</con:savedRecentRuns><con:testStep type="groovy" name="GetDATA" id="cdccfdd0-7bcf-429f-828a-e8a87af9e28c"><con:settings/><con:config><script>import java.io.File
+import jxl.*
+import groovy.json.JsonSlurper
+//read excelfile
+Workbook wb = Workbook.getWorkbook(new File('C:/Users/TeenaSharma/Desktop/SOAP_DATA.xls'))
+sheet = wb.getSheet(1)
+//Read from Excel and write in Propety File
+for(i=0;i&lt;sheet.getColumns();i++)
+{
+ def colName=sheet.getCell(i,0).getContents()   //column and row
+
+ switch (colName)
+ {
+  case  "username" :   
+  testRunner.testCase.getTestStepByName("Login_details").setPropertyValue("username",sheet.getCell(i,1).getContents())
+  case "firstname": 
+ testRunner.testCase.getTestStepByName("Login_details").setPropertyValue("firstname",sheet.getCell(i,1).getContents())
+case "lastname": 
+ testRunner.testCase.getTestStepByName("Login_details").setPropertyValue("lastname",sheet.getCell(i,1).getContents())
+case "email": 
+ testRunner.testCase.getTestStepByName("Login_details").setPropertyValue("email",sheet.getCell(i,1).getContents())
+case "password": 
+ testRunner.testCase.getTestStepByName("Login_details").setPropertyValue("password",sheet.getCell(i,1).getContents())
+ case "phone": 
+ testRunner.testCase.getTestStepByName("Login_details").setPropertyValue("phone",sheet.getCell(i,1).getContents())
+
+ }
+ }
+ //***************************************************************************************************************************************************
+// Create User Request
+ testRunner.testCase.testSuite.project.testSuites["Positive_TestCases"].testCases["LOGIN_SCENARIO2"].testSteps["CreateUesr_POST"].run(testRunner,context)
+ 
+ //ASSERTION FOR RESPONSE CODE
+ def responsebody = context.testCase.getTestStepByName("CreateUesr_POST").getPropertyValue("response")
+ slurperResponse = new JsonSlurper().parseText(responsebody)
+String  code1= slurperResponse.code
+def ExpectedResult = context.testCase.getTestStepByName("Login_details").getPropertyValue("ResponseCode")
+  if (code1==ExpectedResult)
+  {
+    log.info "Pass"
+    log.info slurperResponse.code
+}
+else
+{
+    log.info "Fail"
+        log.info slurperResponse.code
+}
+//ASSERTION ENDS
+
+//ASSERTION FOR Message 
+String message1= slurperResponse.message 
+if (message1!=null)
+
+ {
+    log.info "User Created"
+    log.info slurperResponse.code
+}
+else
+{
+    log.info "User Creation failed"
+        log.info slurperResponse.code
+}
+//ASSERTION FOR Message Ends
+//************************************************************************************************************************************************************
+ //Get Username Request
+//************************************************************************************************************************************************************
+
+ 
+ testRunner.testCase.testSuite.project.testSuites["Positive_TestCases"].testCases["LOGIN_SCENARIO2"].testSteps["Get_Username"].run(testRunner,context)
+ 
+//ASSERTION FOR ID 
+
+def responsebody1 = context.testCase.getTestStepByName("Get_Username").getPropertyValue("response")
+ slurperResponse = new JsonSlurper().parseText(responsebody1)
+def  id1= slurperResponse.id
+
+  if (id1==0)
+  {
+    log.info "User Does not Exists"
+    log.info slurperResponse.id
+}
+else
+{
+    log.info "User Exists"
+        log.info slurperResponse.id
+}
+//ASSERTION ENDS
+
+//******************************************************************************************************************************************************************
+//Update User Request
+//*******************************************************************************************************************************************************************
+ testRunner.testCase.testSuite.project.testSuites["Positive_TestCases"].testCases["LOGIN_SCENARIO2"].testSteps["Update_User"].run(testRunner,context)
+
+//ASSERTION FOR ID 
+
+def responsebody2 = context.testCase.getTestStepByName("Update_User").getPropertyValue("response")
+ slurperResponse = new JsonSlurper().parseText(responsebody2)
+def  message2= slurperResponse.message
+
+  if (message2==null)
+  {
+    log.info "User Updation failed"
+    log.info slurperResponse.message
+}
+else
+{
+    log.info "User Updated"
+        log.info slurperResponse.message
+}
+//ASSERTION ENDS
+//**********************************************************************************************************************************************************************
+ //USER LOGIN Request
+
+//***********************************************************************************************************************************************************************
+
+ testRunner.testCase.testSuite.project.testSuites["Positive_TestCases"].testCases["LOGIN_SCENARIO2"].testSteps["Login"].run(testRunner,context)
+ //ASSERTION FOR LOGIN
+
+ def responsebody5= context.testCase.getTestStepByName("Login").getPropertyValue("response")
+ slurperResponse = new JsonSlurper().parseText(responsebody5)
+String  code5= slurperResponse.message
+def ExpectedResult5= context.testCase.getTestStepByName("Login_details").getPropertyValue("message")
+  if (code5.contains(ExpectedResult5))
+  {
+    log.info "Login Sucessfull"
+    log.info slurperResponse.message
+}
+else
+{
+    log.info "Login Fail"
+        log.info slurperResponse.message
+}
+//LOGIN ASSERTION ENDS
+//***************************************************************************************************************************************************************
+//USER LOGOUT Request
+//***************************************************************************************************************************************************************
+
+  testRunner.testCase.testSuite.project.testSuites["Positive_TestCases"].testCases["LOGIN_SCENARIO2"].testSteps["LogOut"].run(testRunner,context)
+   //ASSERTION FOR LOGOUT
+
+ def logoutresp= context.testCase.getTestStepByName("LogOut").getPropertyValue("response")
+ slurperResponse = new JsonSlurper().parseText(logoutresp)
+def  code6= slurperResponse.message
+
+ def  testresult= context.testCase.getTestStepByName("Login_details").getPropertyValue("logoutResp")
+  if (code6  == testresult)
+  {
+    log.info "Logout Sucessfull"
+    log.info slurperResponse.message
+}
+else
+{
+    log.info "Logout Fail"
+        log.info slurperResponse.message
+}
+//LOGIN ASSERTION ENDS
+
+//**************************************************************************************************************************************************************
+//USER DELETED Request
+//**************************************************************************************************************************************************************
+ 
+   testRunner.testCase.testSuite.project.testSuites["Positive_TestCases"].testCases["LOGIN_SCENARIO2"].testSteps["DeleteUser"].run(testRunner,context)
+   //ASSERTION FOR DELETE
+
+ def delresp= context.testCase.getTestStepByName("DeleteUser").getPropertyValue("response")
+ slurperResponse = new JsonSlurper().parseText(delresp)
+def  code7= slurperResponse.message
+ def delresult= context.testCase.getTestStepByName("Login_details").getPropertyValue("username")
+ if (code7  == delresult)
+  {
+    log.info "Delete Sucessfull"
+    log.info slurperResponse.message
+}
+else
+{
+    log.info "Delete Fail"
+        log.info slurperResponse.message
+}
+//LOGIN ASSERTION ENDS
+   
+</script></con:config></con:testStep><con:testStep type="properties" name="Login_details" id="6355e764-0b1c-4e4c-80ee-c589f386b71e"><con:settings/><con:config xsi:type="con:PropertiesStep" saveFirst="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:properties><con:property><con:name>username</con:name><con:value>Teena111</con:value></con:property><con:property><con:name>firstname</con:name><con:value>Teena</con:value></con:property><con:property><con:name>lastname</con:name><con:value>Sharma</con:value></con:property><con:property><con:name>email</con:name><con:value>teena11@gmail.com</con:value></con:property><con:property><con:name>password</con:name><con:value>Password111</con:value></con:property><con:property><con:name>phone</con:name><con:value>9899989797</con:value></con:property><con:property><con:name>userstatus</con:name><con:value/></con:property><con:property><con:name>ID</con:name><con:value>212132264</con:value></con:property><con:property><con:name>updated_firstname</con:name><con:value>Teena111</con:value></con:property><con:property><con:name>message</con:name><con:value>logged in user session</con:value></con:property><con:property><con:name>ResponseCode</con:name><con:value>200</con:value></con:property><con:property><con:name>logoutResp</con:name><con:value>ok</con:value></con:property></con:properties></con:config></con:testStep><con:testStep type="restrequest" name="CreateUesr_POST" id="a7fdb055-a759-450a-99dd-8f16c91fcca8"><con:settings/><con:config service="https://petstore.swagger.io 3" resourcePath="/v2/user" methodName="CreateUser" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="CreateUesr_POST" id="efb62b1c-3f16-490a-9c44-3702d7d85e05" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>https://petstore.swagger.io</con:endpoint><con:request>{
+  "id": 0,
+  "username": "${Login_details#username}",
+  "firstName": "${Login_details#firstname}",
+  "lastName": "${Login_details#lastname}",
+  "email": "${Login_details#email}",
+  "password": "${Login_details#password}",
+  "phone": "${Login_details#phone}",
+  "userStatus": 0
+}</con:request><con:originalUri>https://petstore.swagger.io/v2/user</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="b52820fd-cc7d-4a9c-a18b-126a205d6a58" name="Valid HTTP Status Codes"><con:settings/><con:configuration><codes>200</codes></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>No Authorization</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:parameters/></con:restRequest></con:config></con:testStep><con:testStep type="restrequest" name="Get_Username" id="09f4a5f3-5233-4309-b2b6-9fa97cb370c0"><con:settings/><con:config service="https://petstore.swagger.io 3" methodName="GetUSER" resourcePath="/v2/user/{username}" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="Get_Username" id="1aa5944a-261c-43fe-9a8b-a0eebbaa8f3a" mediaType="application/json"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://petstore.swagger.io</con:endpoint><con:request/><con:originalUri>https://petstore.swagger.io/v2/user/Teena111</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="9076d2c6-74f3-4b37-9a74-7d7f5adb433b" name="Valid HTTP Status Codes"><con:settings/><con:configuration><codes>200</codes></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>No Authorization</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:parameters><con:entry key="username" value="${Login_details#username}"/></con:parameters></con:restRequest></con:config></con:testStep><con:testStep type="restrequest" name="Update_User" id="a65c4c0e-6e3f-4fc6-914d-eeeff41773ea"><con:settings/><con:config service="https://petstore.swagger.io 3" resourcePath="/v2/user/{username}" methodName="Update_USER" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="Update_User" id="056dff3f-0a8e-4f61-9566-7153970353f0" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>https://petstore.swagger.io</con:endpoint><con:request>{
+  "id": 0,
+  "username": "string",
+  "firstName": "${Login_details#updated_firstname}",
+  "lastName": "string",
+  "email": "string",
+  "password": "string",
+  "phone": "string",
+  "userStatus": 0
+}</con:request><con:originalUri>https://petstore.swagger.io/v2/user/username</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="6af0dece-b5f9-4e2f-821f-ff1d1f87ef46" name="Valid HTTP Status Codes"><con:settings/><con:configuration><codes>200</codes></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>No Authorization</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:parameters><con:entry key="username" value="${Login_details#username}"/></con:parameters></con:restRequest></con:config></con:testStep><con:testStep type="restrequest" name="Login" id="e0285899-ab27-436d-93db-60a5aaa6872f"><con:settings/><con:config service="https://petstore.swagger.io 3" resourcePath="/v2/user/login" methodName="Login_USER" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="Login" id="90d53c48-bdf2-4932-b40d-5d61631416e7" mediaType="application/json"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>https://petstore.swagger.io</con:endpoint><con:request/><con:originalUri>https://petstore.swagger.io/v2/user/login</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="66a64ac5-842c-4772-9ccd-7d7c6729ae7e" name="Valid HTTP Status Codes"><con:settings/><con:configuration><codes>200</codes></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>No Authorization</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:parameters><con:entry key="password" value="${Login_details#password}"/><con:entry key="username" value="${Login_details#username}"/></con:parameters></con:restRequest></con:config></con:testStep><con:testStep type="restrequest" name="LogOut" id="a7a08a2e-8f03-4202-9997-b75d338e74df"><con:settings/><con:config service="https://petstore.swagger.io 3" resourcePath="/v2/user/logout" methodName="LogOut_USER" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="LogOut" id="047172ae-30b8-4e5e-b62d-24876a6f76e5" mediaType="application/json"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>https://petstore.swagger.io</con:endpoint><con:request/><con:originalUri>https://petstore.swagger.io/v2/user/logout</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="ac0b37c5-3f74-45f4-8398-6c3eddb534d5" name="Valid HTTP Status Codes"><con:settings/><con:configuration><codes>200</codes></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>No Authorization</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:parameters/></con:restRequest></con:config></con:testStep><con:testStep type="restrequest" name="DeleteUser" id="1631d176-9aa6-4625-bcda-78a12eccfb54"><con:settings/><con:config service="https://petstore.swagger.io 3" resourcePath="/v2/user/{username}" methodName="Delete_user" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="DeleteUser" id="e77a5daf-7b83-452e-be4b-83f34e92a1b5" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>https://petstore.swagger.io</con:endpoint><con:request/><con:originalUri>https://petstore.swagger.io/v2/user/Teena111</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="a5397cae-af11-413d-898f-eae7d7ae0c28" name="Valid HTTP Status Codes"><con:settings/><con:configuration><codes>200</codes></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>No Authorization</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:parameters><con:entry key="username" value="${Login_details#username}"/></con:parameters></con:restRequest></con:config></con:testStep><con:properties/><con:reportParameters/><con:breakPoints><con:testStepId>3f39ac09-f2c6-4948-b603-834524a1f3dd</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>1e43f231-399b-4668-b137-58f1da923317</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>7d512b0b-d944-4d1e-afa5-a0c765ab9b09</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase>
